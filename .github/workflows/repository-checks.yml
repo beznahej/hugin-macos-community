@@ -21,9 +21,14 @@ jobs:
           bash -n scripts/macos/build-dev.sh
           bash -n scripts/macos/build-vigra.sh
           bash -n scripts/macos/inspect-app-deps.sh
+          bash -n scripts/macos/list-app-bundles.sh
+          bash -n scripts/macos/notarize-release.sh
+          bash -n scripts/macos/package-dmg.sh
+          bash -n scripts/macos/package-release.sh
           bash -n scripts/macos/package-unsigned-apps.sh
           bash -n scripts/macos/sign-app.sh
           bash -n scripts/macos/smoke-cli-fixture.sh
+          bash -n scripts/macos/validate-release.sh
       - name: Validate required project files
         run: |
           test -f README.md
@@ -69,9 +74,34 @@ jobs:
             build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app
       - name: Package unsigned app bundles
         run: ./scripts/macos/package-unsigned-apps.sh
+      - name: Package developer DMG
+        run: |
+          HUGIN_RELEASE_MODE=developer \
+            HUGIN_DMG_PATH=build/artifacts/hugin-macos-community-dev.dmg \
+            ./scripts/macos/package-dmg.sh \
+              build/macos-dev/src/hugin1/hugin/Hugin.app \
+              build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+              build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+              build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+              build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app
+      - name: Validate developer release artifacts
+        run: |
+          HUGIN_RELEASE_MODE=developer ./scripts/macos/validate-release.sh \
+            build/macos-dev/src/hugin1/hugin/Hugin.app \
+            build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+            build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+            build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+            build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app \
+            build/artifacts/hugin-macos-community-dev.dmg
       - name: Upload unsigned app bundles
         uses: actions/upload-artifact@v4
         with:
           name: hugin-macos-unsigned-apps
           path: build/artifacts/hugin-macos-unsigned-apps.tar
+          if-no-files-found: error
+      - name: Upload developer DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugin-macos-community-dev-dmg
+          path: build/artifacts/hugin-macos-community-dev.dmg
           if-no-files-found: error

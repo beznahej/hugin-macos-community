@@ -20,6 +20,17 @@ The raw bundle signature is development-only. On the local build host,
 signing after dependency bundling; Developer ID signing, hardened runtime,
 notarization and stapling remain release-workflow tasks.
 
+This machine currently has no Developer ID certificate available:
+
+```text
+security find-identity -p codesigning -v
+0 valid identities found
+```
+
+The release workflow therefore validates completely in developer mode and fails
+fast in distribution mode until Apple signing and notarization credentials are
+installed.
+
 ## Added tooling
 
 Use the dependency inspector to show Mach-O files, linked dylibs, `LC_RPATH`
@@ -36,6 +47,15 @@ download:
 
 ```bash
 ./scripts/macos/package-unsigned-apps.sh
+```
+
+Use the release orchestrator for the full Phase 2 developer-mode flow. This
+builds or reuses the current build, bundles dependencies, ad-hoc signs apps,
+creates a DMG, mounts that DMG, verifies the contained apps and validates the
+disk image checksum:
+
+```bash
+HUGIN_RELEASE_MODE=developer ./scripts/macos/package-release.sh
 ```
 
 Use the bundler before packaging to copy non-system dylibs into
@@ -67,6 +87,46 @@ HUGIN_SIGN_IDENTITY="Developer ID Application: Example, Inc. (TEAMID)" \
 The bundler removes stale signatures from Mach-O files before rewriting install
 names. Always run `sign-app.sh` after bundling.
 
+Use the DMG packager directly when the apps have already been bundled and
+signed:
+
+```bash
+./scripts/macos/package-dmg.sh \
+  build/macos-dev/src/hugin1/hugin/Hugin.app \
+  build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+  build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+  build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+  build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app
+```
+
+Use the validator directly to verify app signatures, runtime-library closure,
+DMG checksum and mounted DMG contents:
+
+```bash
+HUGIN_RELEASE_MODE=developer ./scripts/macos/validate-release.sh \
+  build/macos-dev/src/hugin1/hugin/Hugin.app \
+  build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+  build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+  build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+  build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app \
+  build/artifacts/hugin-macos-community.dmg
+```
+
+Distribution mode requires a Developer ID Application identity and notarization
+configuration. The signing helper enables hardened runtime with no entitlements
+by default when `HUGIN_SIGN_IDENTITY` is not `-`; do not add entitlements unless
+a concrete runtime failure proves one is needed.
+
+```bash
+HUGIN_RELEASE_MODE=distribution \
+  HUGIN_SIGN_IDENTITY="Developer ID Application: Example, Inc. (TEAMID)" \
+  HUGIN_NOTARY_PROFILE=hugin-notary \
+  ./scripts/macos/package-release.sh
+```
+
+`notarize-release.sh` also supports explicit notarytool credentials through
+`HUGIN_NOTARY_APPLE_ID`, `HUGIN_NOTARY_PASSWORD` and `HUGIN_NOTARY_TEAM_ID`.
+
 ## Local validation
 
 The current Phase 2 scripts were validated against all five generated app
@@ -82,6 +142,31 @@ After bundling and ad-hoc signing, `inspect-app-deps.sh` reports no external
 absolute dependencies, no external absolute `LC_RPATH` entries and no remaining
 `@rpath` dependency references for each app bundle.
 
+The complete local developer-mode release command was also validated with:
+
+```bash
+HUGIN_BUILD_DIR=build/macos-dev-buildsystem \
+  HUGIN_SKIP_BUILD=1 \
+  HUGIN_RELEASE_MODE=developer \
+  HUGIN_DMG_PATH=build/artifacts/hugin-macos-community-dev.dmg \
+  ./scripts/macos/package-release.sh
+```
+
+Result:
+
+- all five app bundles were ad-hoc signed and verified;
+- `hugin-macos-community-dev.dmg` was created;
+- `hdiutil verify` passed;
+- the DMG mounted read-only;
+- all app bundles inside the mounted DMG passed `codesign --verify --deep
+  --strict`.
+
+Distribution-mode guardrail validation:
+
+```text
+Signing identity is not available in the current keychain: Developer ID Application: Missing (TEAMID)
+```
+
 ## Phase 2 work order
 
 1. Inspect every generated app bundle and CLI helper for external absolute
@@ -96,3 +181,7 @@ absolute dependencies, no external absolute `LC_RPATH` entries and no remaining
 6. Enable hardened runtime with the smallest entitlement set that still launches
    and runs the panorama fixture.
 7. Notarize, staple and validate the final artifact on a clean Mac account.
+
+Items 1-6 are implemented in scripts and tested in developer mode. Item 7 is
+credential-gated because this machine does not currently have Developer ID or
+notarization credentials.

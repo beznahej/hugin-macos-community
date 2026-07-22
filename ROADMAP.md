@@ -26,11 +26,15 @@ core panorama pipeline without manual edits.
 - [x] Add repeatable inspection and unsigned packaging entry points.
 - [x] Normalize `@rpath`, `@loader_path` and bundled dylib handling.
 - [x] Add ad-hoc signing for nested executables, dylibs and app bundles.
-- [ ] Configure Developer ID signing for release builds.
-- [ ] Enable hardened runtime with minimal entitlements.
-- [ ] Add notarization and ticket stapling.
-- [ ] Produce a signed DMG.
-- [ ] Validate with `codesign`, `spctl`, `stapler` and clean-machine tests.
+- [x] Configure Developer ID signing path for release builds.
+- [x] Enable hardened-runtime release signing with no default entitlements.
+- [x] Add notarization and ticket stapling workflow.
+- [x] Produce and validate a developer DMG.
+- [x] Validate apps and mounted DMG contents with `codesign` and `hdiutil`.
+- [ ] Produce a Developer ID signed, notarized and stapled DMG on a machine
+      with Apple signing/notarization credentials.
+- [ ] Validate the notarized distribution artifact with `spctl`, `stapler` and
+      clean-machine launch tests.
 
 **Exit criterion:** a user can download, install and launch the application on a
 supported Mac without bypassing Gatekeeper.

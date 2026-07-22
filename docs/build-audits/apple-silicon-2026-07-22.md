@@ -400,6 +400,41 @@ Local validation after bundling and ad-hoc signing:
 - `hugin_toolbox.app`: no external absolute dependencies, no external absolute
   rpaths and no remaining `@rpath` dependency references.
 
+### Phase 2 release packaging pass
+
+Added release entry points:
+
+- `./scripts/macos/list-app-bundles.sh`
+- `./scripts/macos/package-release.sh`
+- `./scripts/macos/package-dmg.sh`
+- `./scripts/macos/notarize-release.sh`
+- `./scripts/macos/validate-release.sh`
+
+The complete developer-mode Phase 2 flow was validated locally against the
+existing Apple Silicon build:
+
+```text
+HUGIN_BUILD_DIR=build/macos-dev-buildsystem
+HUGIN_SKIP_BUILD=1
+HUGIN_RELEASE_MODE=developer
+HUGIN_DMG_PATH=build/artifacts/hugin-macos-community-dev.dmg
+./scripts/macos/package-release.sh
+```
+
+Results:
+
+- the already bundled apps were processed idempotently;
+- all five app bundles were ad-hoc signed and verified;
+- `hugin-macos-community-dev.dmg` was created;
+- `hdiutil verify` passed;
+- `validate-release.sh` mounted the DMG read-only and verified all contained app
+  bundle signatures.
+
+Distribution mode was also checked for fail-fast behavior. Because
+`security find-identity -p codesigning -v` reports `0 valid identities found` on
+this machine, `package-release.sh` correctly refuses to continue without a
+Developer ID Application certificate.
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -431,12 +466,16 @@ Local validation after bundling and ad-hoc signing:
     dependency references after Phase 2 processing.
 18. The macOS Homebrew manifest now includes the direct image, OpenEXR, GLEW
     and LCMS dependencies needed on a clean runner.
+19. Phase 2 now has a complete developer-mode release pipeline: bundle,
+    ad-hoc sign, DMG package, DMG mount verification and artifact validation.
+20. Distribution mode is implemented but blocked on local Apple Developer ID
+    and notarization credentials.
 
 ## Next Actions
 
-1. Configure Developer ID signing with hardened runtime once credentials are
-   present.
+1. Install a Developer ID Application certificate and configure `notarytool`
+   credentials, then run `HUGIN_RELEASE_MODE=distribution
+   ./scripts/macos/package-release.sh`.
 2. Resolve Homebrew deployment-target warnings by moving release dependencies
    from bottles to a controlled dependency build.
-3. Add notarization, stapling and DMG creation once Apple credentials are
-   available.
+3. Run clean-machine launch tests on the notarized DMG.
