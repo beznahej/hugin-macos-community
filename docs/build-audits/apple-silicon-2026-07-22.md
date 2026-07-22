@@ -14,6 +14,7 @@ Initial native `arm64` build audit against the tracked upstream snapshot.
 - pkg-config/pkgconf: 3.0.3
 - wxWidgets: 3.3.3, toolkit `osx_cocoa`
 - VIGRA: 1.12.4, source-built from `Version-1-12-4`
+- Exiv2: 0.28.8
 - upstream snapshot: `439cf9058f8f761bc0e348ff22c0fa24ab26da54`
 
 ## Commands
@@ -174,6 +175,33 @@ Affected source/config paths:
 - `upstream/hugin/CMakeLists.txt`
 - `upstream/hugin/CMakeModules/FindEXIV2.cmake`
 
+### Exiv2 configure pass
+
+Added `exiv2` to `deps/macos/homebrew-formulae.txt`.
+`./scripts/macos/bootstrap-deps.sh` installed Exiv2 0.28.8, plus the direct
+formula dependencies `inih` 62 and `libssh` 0.12.1.
+
+After installing Exiv2, Hugin configure gets past metadata dependency
+discovery:
+
+```text
+-- Found Exiv2 release >= 0.12
+-- Found Exiv2: /opt/homebrew/lib/libexiv2.dylib
+```
+
+Configure now stops at missing libpano13:
+
+```text
+libpano13 not found
+```
+
+Classification: dependency discovery.
+
+Affected source/config paths:
+
+- `upstream/hugin/CMakeLists.txt`
+- `upstream/hugin/CMakeModules/FindPANO13.cmake`
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -190,10 +218,11 @@ Affected source/config paths:
 7. VIGRA is not available from Homebrew, but VIGRA 1.12.4 can be built from the
    official source tag into the repo-local dependency prefix.
 8. Hugin now discovers VIGRA from that local prefix.
-9. The next configure blocker is Exiv2 discovery.
+9. Exiv2 0.28.8 from Homebrew satisfies metadata dependency discovery.
+10. The next configure blocker is libpano13 discovery.
 
 ## Next Actions
 
-1. Add Exiv2 to the audited dependency set.
+1. Add libpano13 to the audited dependency set.
 2. Re-run `./scripts/macos/build-dev.sh`.
 3. Record the next failure by category, command excerpt and affected path.
