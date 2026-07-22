@@ -369,9 +369,30 @@ is dylib/rpath normalization before Developer ID signing and notarization.
 
 Added Phase 2 entry points:
 
+- `./scripts/macos/bundle-app-deps.sh`
 - `./scripts/macos/inspect-app-deps.sh`
 - `./scripts/macos/package-unsigned-apps.sh`
 - `./scripts/macos/sign-app.sh`
+
+`bundle-app-deps.sh` copies non-system runtime dependencies into
+`Contents/Frameworks`, rewrites executable references to
+`@executable_path/../Frameworks`, rewrites bundled-library references to
+`@loader_path`, removes stale signatures before rewriting Mach-O files, and
+removes absolute development rpaths from app bundles. CI now ad-hoc signs the
+bundled apps before packaging them as non-Developer-ID development artifacts.
+
+Local validation after bundling and ad-hoc signing:
+
+- `Hugin.app`: no external absolute dependencies, no external absolute rpaths
+  and no remaining `@rpath` dependency references.
+- `calibrate_lens_gui.app`: no external absolute dependencies, no external
+  absolute rpaths and no remaining `@rpath` dependency references.
+- `PTBatcherGUI.app`: no external absolute dependencies, no external absolute
+  rpaths and no remaining `@rpath` dependency references.
+- `HuginStitchProject.app`: no external absolute dependencies, no external
+  absolute rpaths and no remaining `@rpath` dependency references.
+- `hugin_toolbox.app`: no external absolute dependencies, no external absolute
+  rpaths and no remaining `@rpath` dependency references.
 
 ## Findings
 
@@ -397,13 +418,17 @@ Added Phase 2 entry points:
 14. The CLI panorama fixture exercises project generation, control-point
     detection, cleanup, optimization, validation and rendering.
 15. CI now has a macOS development build job that uploads unsigned app bundles.
-16. Phase 2 now has repeatable inspection, unsigned packaging and signing entry
-    points.
+16. Phase 2 now has repeatable inspection, dependency bundling, unsigned
+    packaging and ad-hoc signing entry points.
+17. All five built app bundles validate with no external absolute dylib
+    dependencies, no external absolute rpaths and no remaining `@rpath`
+    dependency references after Phase 2 processing.
 
 ## Next Actions
 
-1. Start Phase 2 packaging work by normalizing app bundle dylib/rpath handling.
-2. Use `sign-app.sh` for ad-hoc verification locally and Developer ID signing
-   once credentials are present.
-3. Resolve Homebrew deployment-target warnings by moving release dependencies
+1. Configure Developer ID signing with hardened runtime once credentials are
+   present.
+2. Resolve Homebrew deployment-target warnings by moving release dependencies
    from bottles to a controlled dependency build.
+3. Add notarization, stapling and DMG creation once Apple credentials are
+   available.

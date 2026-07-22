@@ -24,8 +24,9 @@ core panorama pipeline without manual edits.
 ## Phase 2 — Proper Mac application distribution
 
 - [x] Add repeatable inspection and unsigned packaging entry points.
-- [ ] Normalize `@rpath`, `@loader_path` and bundled dylib handling.
-- [ ] Sign nested executables, dylibs, helper tools and application bundles.
+- [x] Normalize `@rpath`, `@loader_path` and bundled dylib handling.
+- [x] Add ad-hoc signing for nested executables, dylibs and app bundles.
+- [ ] Configure Developer ID signing for release builds.
 - [ ] Enable hardened runtime with minimal entitlements.
 - [ ] Add notarization and ticket stapling.
 - [ ] Produce a signed DMG.

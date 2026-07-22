@@ -17,6 +17,7 @@ jobs:
           bash -n scripts/fetch-upstream.sh
           bash -n scripts/import-upstream-snapshot.sh
           bash -n scripts/macos/bootstrap-deps.sh
+          bash -n scripts/macos/bundle-app-deps.sh
           bash -n scripts/macos/build-dev.sh
           bash -n scripts/macos/build-vigra.sh
           bash -n scripts/macos/inspect-app-deps.sh
@@ -50,6 +51,22 @@ jobs:
         run: ./scripts/macos/build-dev.sh
       - name: Run CLI panorama smoke fixture
         run: ./scripts/macos/smoke-cli-fixture.sh
+      - name: Bundle app runtime dependencies
+        run: |
+          ./scripts/macos/bundle-app-deps.sh \
+            build/macos-dev/src/hugin1/hugin/Hugin.app \
+            build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+            build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+            build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+            build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app
+      - name: Ad-hoc sign bundled app bundles
+        run: |
+          HUGIN_SIGN_IDENTITY=- ./scripts/macos/sign-app.sh \
+            build/macos-dev/src/hugin1/hugin/Hugin.app \
+            build/macos-dev/src/hugin1/calibrate_lens/calibrate_lens_gui.app \
+            build/macos-dev/src/hugin1/ptbatcher/PTBatcherGUI.app \
+            build/macos-dev/src/hugin1/stitch_project/HuginStitchProject.app \
+            build/macos-dev/src/hugin1/toolbox/hugin_toolbox.app
       - name: Package unsigned app bundles
         run: ./scripts/macos/package-unsigned-apps.sh
       - name: Upload unsigned app bundles
