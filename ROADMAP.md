@@ -11,10 +11,10 @@
 
 ## Phase 1 — Reproducible Apple Silicon development build
 
-- [ ] Build Hugin natively on `arm64` using current Xcode command-line tools.
+- [x] Build Hugin natively on `arm64` using current Xcode command-line tools.
 - [ ] Remove hardcoded `/usr/local`, `-march=core2` and x86-only OpenMP settings.
 - [ ] Establish a version-locked dependency manifest.
-- [ ] Integrate known wxWidgets 3.3 compatibility fixes with attribution.
+- [x] Integrate known wxWidgets 3.3 compatibility fixes with attribution.
 - [ ] Add an end-to-end command-line panorama fixture.
 - [ ] Produce an unsigned development `.app` artifact in CI.
 

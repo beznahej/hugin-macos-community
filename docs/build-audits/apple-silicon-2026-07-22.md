@@ -263,6 +263,53 @@ Affected source/config paths:
 - `upstream/hugin/CMakeLists.txt`
 - `scripts/import-upstream-snapshot.sh`
 
+### wxWidgets 3.3 compatibility pass
+
+`wxScrollHelperBase::HandleOnScroll` is private in the Homebrew wxWidgets 3.3.3
+headers. The legacy `treelistctrl.cpp` implementation called it directly from
+`wxTreeListMainWindow::OnScroll`, which stopped the GUI build.
+
+The compatibility fix keeps the direct call for older wxWidgets releases and
+uses the normal skipped-event path for wxWidgets 3.3 and newer:
+
+```text
+#if wxCHECK_VERSION(3, 3, 0)
+    event.Skip();
+#else
+    HandleOnScroll( event );
+#endif
+```
+
+After this change, `./scripts/macos/build-dev.sh` completes successfully in
+`build/macos-dev-buildsystem`.
+
+Built GUI app bundles:
+
+- `src/hugin1/hugin/Hugin.app`
+- `src/hugin1/calibrate_lens/calibrate_lens_gui.app`
+- `src/hugin1/ptbatcher/PTBatcherGUI.app`
+- `src/hugin1/stitch_project/HuginStitchProject.app`
+- `src/hugin1/toolbox/hugin_toolbox.app`
+
+Built CLI tools include:
+
+- `src/tools/pto_gen`
+- `src/hugin_cpfind/cpfind/cpfind`
+- `src/tools/cpclean`
+- `src/tools/autooptimiser`
+- `src/tools/nona`
+- `src/tools/checkpto`
+
+Classification: source compatibility with wxWidgets 3.3 resolved.
+
+Remaining build warnings to carry forward:
+
+- Homebrew bottles on this host are built for newer macOS versions than the
+  configured `HUGIN_MACOS_DEPLOYMENT_TARGET=13.0`.
+- OpenMP is not found, so multi-threaded OpenMP paths are disabled.
+- FLANN and FFTW are optional and currently absent; Hugin falls back to the
+  included FLANN copy and disables FFT fast cross correlation support.
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -282,11 +329,12 @@ Affected source/config paths:
 9. Exiv2 0.28.8 from Homebrew satisfies metadata dependency discovery.
 10. libpano 2.9.23 from Homebrew satisfies libpano13 dependency discovery.
 11. Hugin now reaches compile after configure completion.
-12. The next blocker is a wxWidgets 3.3 compatibility error in
-    `treelistctrl.cpp`.
+12. The wxWidgets 3.3 `HandleOnScroll` compatibility error is resolved.
+13. A full local Apple Silicon development build now completes.
 
 ## Next Actions
 
-1. Patch the wxWidgets 3.3 `HandleOnScroll` compatibility issue.
-2. Re-run `./scripts/macos/build-dev.sh`.
-3. Record the next failure by category, command excerpt and affected path.
+1. Add an end-to-end CLI fixture that exercises the panorama pipeline.
+2. Add a GitHub Actions build job that produces an unsigned development app
+   artifact.
+3. Start Phase 2 packaging work by normalizing app bundle dylib/rpath handling.

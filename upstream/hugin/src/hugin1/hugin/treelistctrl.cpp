@@ -4276,8 +4276,11 @@ void wxTreeListMainWindow::OnScroll (wxScrollWinEvent& event) {
     // send event to wxTreeListCtrl (for user code)
     if (m_owner->GetEventHandler()->ProcessEvent(event)) return; // handled (and not skipped) in user code
 
-    // TODO
+#if wxCHECK_VERSION(3, 3, 0)
+    event.Skip();
+#else
     HandleOnScroll( event );
+#endif
 
     if(event.GetOrientation() == wxHORIZONTAL) {
         m_owner->GetHeaderWindow()->Refresh();
