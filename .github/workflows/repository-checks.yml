@@ -1,0 +1,28 @@
+name: Repository checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shell-and-structure:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell syntax
+        run: |
+          bash -n scripts/fetch-upstream.sh
+          bash -n scripts/macos/bootstrap-deps.sh
+          bash -n scripts/macos/build-dev.sh
+      - name: Validate required project files
+        run: |
+          test -f README.md
+          test -f NOTICE
+          test -f UPSTREAM.md
+          test -f ROADMAP.md
+          test -f docs/architecture.md
+          test -f docs/product-design.md
+          test -f docs/first-deliverables.md
