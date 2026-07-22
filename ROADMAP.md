@@ -6,8 +6,8 @@
 - [x] Document upstream source and licensing.
 - [x] Define the Mac architecture and product direction.
 - [x] Add bootstrap scripts and issue templates.
-- [ ] Import the current upstream source baseline with provenance.
-- [ ] Decide whether to preserve full Mercurial history or use periodic vendor snapshots.
+- [x] Import the current upstream source baseline with provenance.
+- [x] Decide whether to preserve full Mercurial history or use periodic vendor snapshots.
 
 ## Phase 1 — Reproducible Apple Silicon development build
 
