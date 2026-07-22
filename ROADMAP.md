@@ -15,8 +15,8 @@
 - [ ] Remove hardcoded `/usr/local`, `-march=core2` and x86-only OpenMP settings.
 - [ ] Establish a version-locked dependency manifest.
 - [x] Integrate known wxWidgets 3.3 compatibility fixes with attribution.
-- [ ] Add an end-to-end command-line panorama fixture.
-- [ ] Produce an unsigned development `.app` artifact in CI.
+- [x] Add an end-to-end command-line panorama fixture.
+- [x] Produce an unsigned development `.app` artifact in CI.
 
 **Exit criterion:** a clean GitHub-hosted macOS runner can build and execute the
 core panorama pipeline without manual edits.

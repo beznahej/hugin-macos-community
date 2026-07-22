@@ -310,6 +310,38 @@ Remaining build warnings to carry forward:
 - FLANN and FFTW are optional and currently absent; Hugin falls back to the
   included FLANN copy and disables FFT fast cross correlation support.
 
+### CLI panorama fixture
+
+Added `./scripts/macos/smoke-cli-fixture.sh`. The fixture generates two
+synthetic overlapping PPM images under `build/`, then runs the command-line
+pipeline:
+
+```text
+pto_gen -> cpfind -> cpclean -> autooptimiser -> checkpto -> nona
+```
+
+Local verification:
+
+```text
+cpfind: Found 75 matches
+checkpto: All images are connected.
+nona: wrote build/smoke-cli-fixture/rendered.png
+```
+
+### CI unsigned app artifact
+
+`.github/workflows/repository-checks.yml` now includes a `macos-dev-build` job
+that:
+
+1. installs audited Homebrew dependencies;
+2. builds the source-built VIGRA dependency;
+3. builds Hugin with `./scripts/macos/build-dev.sh`;
+4. runs the CLI panorama smoke fixture;
+5. tars the unsigned `.app` bundles so executable permissions survive artifact
+   download;
+6. uploads `hugin-macos-unsigned-apps.tar` as the
+   `hugin-macos-unsigned-apps` artifact.
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -331,10 +363,14 @@ Remaining build warnings to carry forward:
 11. Hugin now reaches compile after configure completion.
 12. The wxWidgets 3.3 `HandleOnScroll` compatibility error is resolved.
 13. A full local Apple Silicon development build now completes.
+14. The CLI panorama fixture exercises project generation, control-point
+    detection, cleanup, optimization, validation and rendering.
+15. CI now has a macOS development build job that uploads unsigned app bundles.
 
 ## Next Actions
 
-1. Add an end-to-end CLI fixture that exercises the panorama pipeline.
-2. Add a GitHub Actions build job that produces an unsigned development app
-   artifact.
-3. Start Phase 2 packaging work by normalizing app bundle dylib/rpath handling.
+1. Start Phase 2 packaging work by normalizing app bundle dylib/rpath handling.
+2. Add signing and verification scripts that can run unsigned locally and switch
+   to Developer ID when credentials are present.
+3. Resolve Homebrew deployment-target warnings by moving release dependencies
+   from bottles to a controlled dependency build.

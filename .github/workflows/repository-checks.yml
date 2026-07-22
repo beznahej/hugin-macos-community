@@ -18,6 +18,8 @@ jobs:
           bash -n scripts/import-upstream-snapshot.sh
           bash -n scripts/macos/bootstrap-deps.sh
           bash -n scripts/macos/build-dev.sh
+          bash -n scripts/macos/build-vigra.sh
+          bash -n scripts/macos/smoke-cli-fixture.sh
       - name: Validate required project files
         run: |
           test -f README.md
@@ -29,3 +31,34 @@ jobs:
           test -f docs/first-deliverables.md
           test -f docs/upstream-import.md
           test -f deps/macos/homebrew-formulae.txt
+          test -f deps/macos/source-deps.txt
+
+  macos-dev-build:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: ./scripts/macos/bootstrap-deps.sh
+      - name: Build VIGRA source dependency
+        run: ./scripts/macos/build-vigra.sh
+      - name: Build Hugin
+        run: ./scripts/macos/build-dev.sh
+      - name: Run CLI panorama smoke fixture
+        run: ./scripts/macos/smoke-cli-fixture.sh
+      - name: Package unsigned app bundles
+        run: |
+          mkdir -p build/artifacts
+          tar -C build/macos-dev/src/hugin1 \
+            -cf build/artifacts/hugin-macos-unsigned-apps.tar \
+            hugin/Hugin.app \
+            calibrate_lens/calibrate_lens_gui.app \
+            ptbatcher/PTBatcherGUI.app \
+            stitch_project/HuginStitchProject.app \
+            toolbox/hugin_toolbox.app
+      - name: Upload unsigned app bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugin-macos-unsigned-apps
+          path: build/artifacts/hugin-macos-unsigned-apps.tar
+          if-no-files-found: error
