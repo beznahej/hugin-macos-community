@@ -1,0 +1,3 @@
+# Source-built dependencies that are not available from Homebrew.
+# Format: name repository ref commit license
+vigra https://github.com/ukoethe/vigra.git Version-1-12-4 de98f930b66d461360a2d5dc8f9adfa84bb01058 MIT

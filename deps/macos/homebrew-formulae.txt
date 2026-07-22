@@ -6,3 +6,5 @@ pkgconf
 
 # First audited upstream configure dependency
 wxwidgets
+
+# VIGRA is source-built because Homebrew does not currently ship it.

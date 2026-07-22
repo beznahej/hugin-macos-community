@@ -13,6 +13,7 @@ Initial native `arm64` build audit against the tracked upstream snapshot.
 - Mercurial: 7.2.3
 - pkg-config/pkgconf: 3.0.3
 - wxWidgets: 3.3.3, toolkit `osx_cocoa`
+- VIGRA: 1.12.4, source-built from `Version-1-12-4`
 - upstream snapshot: `439cf9058f8f761bc0e348ff22c0fa24ab26da54`
 
 ## Commands
@@ -21,6 +22,7 @@ Initial native `arm64` build audit against the tracked upstream snapshot.
 brew install mercurial
 ./scripts/import-upstream-snapshot.sh
 ./scripts/macos/bootstrap-deps.sh
+./scripts/macos/build-vigra.sh
 ./scripts/macos/build-dev.sh
 ```
 
@@ -106,6 +108,72 @@ Affected source/config paths:
 - `upstream/hugin/CMakeLists.txt`
 - `upstream/hugin/CMakeModules/FindVIGRA.cmake`
 
+### VIGRA source dependency pass
+
+Homebrew does not currently provide a `vigra` formula, so VIGRA is now treated
+as a source-built dependency and installed under the repo-local dependency
+prefix:
+
+```text
+build/deps/macos-arm64/
+```
+
+The source dependency is locked in `deps/macos/source-deps.txt`:
+
+```text
+vigra https://github.com/ukoethe/vigra.git Version-1-12-4 de98f930b66d461360a2d5dc8f9adfa84bb01058 MIT
+```
+
+`./scripts/macos/build-vigra.sh` builds VIGRA with:
+
+- `BUILD_DOCS=OFF`
+- `BUILD_TESTS=OFF`
+- `WITH_VIGRANUMPY=OFF`
+- `WITH_HDF5=OFF`
+- `WITH_OPENEXR=ON`
+
+The VIGRA 1.12.4 CMake package target still depends on `doc_cpp` even when
+docs are disabled, so the dependency build applies
+`deps/macos/patches/vigra-1.12.4-package-src-doc-target.patch`. That patch only
+guards the `PACKAGE_SRC_TAR -> doc_cpp` dependency when the docs target exists.
+
+VIGRA builds and installs successfully:
+
+```text
+-- Configuring VIGRA version 1.12.4
+--   Using OpenEXR  libraries: OpenEXR::OpenEXR;OpenEXR::Iex;OpenEXR::IlmThread;Imath::Imath
+--   FFTW libraries not found (FFTW support disabled)
+--   HDF5 disabled by user (WITH_HDF5=0)
+--   Vigranumpy disabled by user (WITH_VIGRANUMPY=0)
+VIGRA installed into .../build/deps/macos-arm64
+```
+
+The dependency linker currently warns that some Homebrew bottles were built for
+a newer macOS version than `HUGIN_MACOS_DEPLOYMENT_TARGET=13.0`. This is not the
+current configure blocker, but it must be resolved before Phase 2 distribution
+work can claim a supported deployment target.
+
+After the local VIGRA prefix is present, Hugin configure finds VIGRA:
+
+```text
+-- Found VIGRA: .../build/deps/macos-arm64/lib/libvigraimpex.dylib
+-- VIGRA version: 1.12.4
+```
+
+Configure now stops at missing Exiv2:
+
+```text
+Could NOT find Exiv2 header files
+Cannot find Exiv2 library!
+```
+
+Classification: dependency discovery.
+
+Affected source/config paths:
+
+- `upstream/hugin/CMakeLists.txt`
+- `upstream/hugin/CMakeModules/FindEXIV2.cmake`
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -119,10 +187,13 @@ Affected source/config paths:
    provenance baseline rather than the ignored Mercurial working copy.
 6. wxWidgets 3.3.3 from Homebrew satisfies the first GUI dependency discovery
    blocker.
-7. The next configure blocker is VIGRA discovery.
+7. VIGRA is not available from Homebrew, but VIGRA 1.12.4 can be built from the
+   official source tag into the repo-local dependency prefix.
+8. Hugin now discovers VIGRA from that local prefix.
+9. The next configure blocker is Exiv2 discovery.
 
 ## Next Actions
 
-1. Add VIGRA to the audited dependency set.
+1. Add Exiv2 to the audited dependency set.
 2. Re-run `./scripts/macos/build-dev.sh`.
 3. Record the next failure by category, command excerpt and affected path.
