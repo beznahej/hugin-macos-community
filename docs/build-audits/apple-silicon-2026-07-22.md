@@ -12,6 +12,7 @@ Initial native `arm64` build audit against the tracked upstream snapshot.
 - Ninja: 1.13.2
 - Mercurial: 7.2.3
 - pkg-config/pkgconf: 3.0.3
+- wxWidgets: 3.3.3, toolkit `osx_cocoa`
 - upstream snapshot: `439cf9058f8f761bc0e348ff22c0fa24ab26da54`
 
 ## Commands
@@ -74,6 +75,37 @@ Affected source/config path:
 
 - `upstream/hugin/CMakeLists.txt`
 
+### wxWidgets configure pass
+
+Added `deps/macos/homebrew-formulae.txt` as the initial audited Homebrew formula
+manifest and added `wxwidgets`.
+
+`./scripts/macos/bootstrap-deps.sh` now installs formulae from that manifest and
+sets `HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1` so this repo's bootstrap does
+not try to upgrade unrelated installed dependents.
+
+After installing wxWidgets 3.3.3, configure gets past wxWidgets discovery:
+
+```text
+-- Found wxWidgets: ... (found version "3.3.3")
+```
+
+Configure now stops at missing VIGRA:
+
+```text
+CMake Error at CMakeModules/FindVIGRA.cmake:92 (MESSAGE):
+  Could not find VIGRA
+Call Stack (most recent call first):
+  CMakeLists.txt:230 (FIND_PACKAGE)
+```
+
+Classification: dependency discovery.
+
+Affected source/config paths:
+
+- `upstream/hugin/CMakeLists.txt`
+- `upstream/hugin/CMakeModules/FindVIGRA.cmake`
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -85,10 +117,12 @@ Affected source/config path:
    otherwise local environment conflicts obscure Hugin-specific failures.
 5. The dev build should default to `upstream/hugin/` so audits use the tracked
    provenance baseline rather than the ignored Mercurial working copy.
+6. wxWidgets 3.3.3 from Homebrew satisfies the first GUI dependency discovery
+   blocker.
+7. The next configure blocker is VIGRA discovery.
 
 ## Next Actions
 
-1. Define and pin the initial macOS dependency manifest.
-2. Add wxWidgets to the audited dependency set.
-3. Re-run `./scripts/macos/build-dev.sh`.
-4. Record the next failure by category, command excerpt and affected path.
+1. Add VIGRA to the audited dependency set.
+2. Re-run `./scripts/macos/build-dev.sh`.
+3. Record the next failure by category, command excerpt and affected path.

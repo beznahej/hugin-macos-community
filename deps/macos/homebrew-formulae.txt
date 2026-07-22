@@ -1,0 +1,8 @@
+# Base build tooling
+cmake
+ninja
+mercurial
+pkgconf
+
+# First audited upstream configure dependency
+wxwidgets

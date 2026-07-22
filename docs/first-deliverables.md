@@ -42,6 +42,8 @@ Run a clean `arm64` build and classify every failure into:
 
 The first audit note lives at
 `docs/build-audits/apple-silicon-2026-07-22.md`.
+The initial Homebrew dependency manifest lives at
+`deps/macos/homebrew-formulae.txt`.
 
 ## Deliverable 3: Reproducible development build
 

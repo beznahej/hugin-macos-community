@@ -28,3 +28,4 @@ jobs:
           test -f docs/product-design.md
           test -f docs/first-deliverables.md
           test -f docs/upstream-import.md
+          test -f deps/macos/homebrew-formulae.txt
