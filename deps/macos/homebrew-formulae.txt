@@ -7,5 +7,6 @@ pkgconf
 # First audited upstream configure dependency
 wxwidgets
 exiv2
+libpano
 
 # VIGRA is source-built because Homebrew does not currently ship it.

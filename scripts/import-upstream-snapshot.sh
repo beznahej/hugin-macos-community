@@ -44,7 +44,7 @@ SNAPSHOT_LABEL="${SNAPSHOT_DIR#"$ROOT_DIR"/}"
 rm -rf "$SNAPSHOT_DIR"
 mkdir -p "$SNAPSHOT_DIR"
 hg --cwd "$CHECKOUT_DIR" archive -r "$UPSTREAM_BRANCH" "$SNAPSHOT_DIR"
-printf '%s\n' "$REVISION" > "$SNAPSHOT_DIR/rev.txt"
+printf '%s' "$REVISION" > "$SNAPSHOT_DIR/rev.txt"
 
 cat > "$SNAPSHOT_DIR/UPSTREAM-SNAPSHOT" <<EOF
 url=$UPSTREAM_URL

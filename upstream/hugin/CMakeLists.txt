@@ -19,7 +19,9 @@ if(POLICY CMP0127)
 endif()
 
 if(APPLE)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+  if(NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+  endif()
   if (MAC_SELF_CONTAINED_BUNDLE)
       set(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/mac/ExternalPrograms/repository/lib)
       set(CMAKE_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/mac/ExternalPrograms/repository/include ${CMAKE_SOURCE_DIR}/mac/ExternalPrograms/repository/bin)
@@ -98,6 +100,7 @@ ELSE()
   SET(HUGIN_PACKAGE_VERSION ${V_MAJOR}.${V_MINOR}.${V_PATCH})
   SET(HUGIN_WC_REVISION 0)
   FILE(READ "${PROJECT_SOURCE_DIR}/rev.txt" HUGIN_WC_REVISION)
+  STRING(STRIP "${HUGIN_WC_REVISION}" HUGIN_WC_REVISION)
   MESSAGE("-- Current HG revision is ${HUGIN_WC_REVISION}")
   MESSAGE("-- Assuming this is a tarball (release) build for ${HUGIN_PACKAGE_VERSION}")
   SET(HUGIN_DEVELOPMENT_VERSION 0)
@@ -910,4 +913,3 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-

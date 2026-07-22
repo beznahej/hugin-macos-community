@@ -15,6 +15,7 @@ Initial native `arm64` build audit against the tracked upstream snapshot.
 - wxWidgets: 3.3.3, toolkit `osx_cocoa`
 - VIGRA: 1.12.4, source-built from `Version-1-12-4`
 - Exiv2: 0.28.8
+- libpano13/libpano: 2.9.23
 - upstream snapshot: `439cf9058f8f761bc0e348ff22c0fa24ab26da54`
 
 ## Commands
@@ -202,6 +203,66 @@ Affected source/config paths:
 - `upstream/hugin/CMakeLists.txt`
 - `upstream/hugin/CMakeModules/FindPANO13.cmake`
 
+### libpano13 configure pass
+
+Added Homebrew `libpano` to `deps/macos/homebrew-formulae.txt`.
+`./scripts/macos/bootstrap-deps.sh` installed libpano 2.9.23.
+
+After installing libpano, Hugin configure finds libpano13 and completes
+configuration:
+
+```text
+-- libpano13 version: 2.9.23
+-- Configuring done
+-- Generating done
+```
+
+Classification: dependency discovery resolved.
+
+### Apple Silicon build-system pass
+
+The first compile attempt after configure completion failed in
+`hugin_utils/utils.cpp` for two build-system reasons:
+
+1. `upstream/hugin/CMakeLists.txt` hard-set `CMAKE_OSX_DEPLOYMENT_TARGET` to
+   `10.9` on Apple, overriding `./scripts/macos/build-dev.sh` and making
+   `std::filesystem` unavailable.
+2. `rev.txt` contained a trailing newline, and the non-`.hg` release path read
+   that value directly into `DISPLAY_VERSION`, producing an invalid generated
+   `hugin_version.h`.
+
+The tracked snapshot now keeps the historical `10.9` default only when the
+caller does not provide `CMAKE_OSX_DEPLOYMENT_TARGET`, and strips `rev.txt`
+whitespace after reading it. The import script also writes `rev.txt` without a
+trailing newline for future snapshots.
+
+Verification:
+
+```text
+#define DISPLAY_VERSION "2025.1.0.439cf9058f8f built by "
+```
+
+The retry compiles `utils.cpp` with the requested deployment target:
+
+```text
+-mmacosx-version-min=13.0
+```
+
+The build now progresses into GUI targets and stops at the first wxWidgets 3.3
+compatibility error:
+
+```text
+treelistctrl.cpp:4280:5: error: 'HandleOnScroll' is a private member of 'wxScrollHelperBase'
+```
+
+Classification: source compatibility with wxWidgets 3.3.
+
+Affected source/config paths:
+
+- `upstream/hugin/src/hugin1/hugin/treelistctrl.cpp`
+- `upstream/hugin/CMakeLists.txt`
+- `scripts/import-upstream-snapshot.sh`
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -219,10 +280,13 @@ Affected source/config paths:
    official source tag into the repo-local dependency prefix.
 8. Hugin now discovers VIGRA from that local prefix.
 9. Exiv2 0.28.8 from Homebrew satisfies metadata dependency discovery.
-10. The next configure blocker is libpano13 discovery.
+10. libpano 2.9.23 from Homebrew satisfies libpano13 dependency discovery.
+11. Hugin now reaches compile after configure completion.
+12. The next blocker is a wxWidgets 3.3 compatibility error in
+    `treelistctrl.cpp`.
 
 ## Next Actions
 
-1. Add libpano13 to the audited dependency set.
+1. Patch the wxWidgets 3.3 `HandleOnScroll` compatibility issue.
 2. Re-run `./scripts/macos/build-dev.sh`.
 3. Record the next failure by category, command excerpt and affected path.
