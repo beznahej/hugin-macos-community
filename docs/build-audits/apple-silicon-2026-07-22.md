@@ -342,6 +342,37 @@ that:
 6. uploads `hugin-macos-unsigned-apps.tar` as the
    `hugin-macos-unsigned-apps` artifact.
 
+The CI packaging step now calls `./scripts/macos/package-unsigned-apps.sh` so
+local builds and CI produce the same unsigned app archive layout.
+
+### Phase 2 packaging inspection
+
+Initial inspection of `Hugin.app` shows the development bundle is not
+redistributable yet. The bundle currently contains only:
+
+- `Contents/MacOS/Hugin`
+- `Contents/Resources/Hugin.icns`
+- `Contents/Info.plist`
+
+`otool -L` reports external absolute runtime dependencies from Homebrew and the
+repo-local VIGRA prefix, including `libpano`, `glew`, `OpenEXR`, `Imath`,
+`libtiff`, `Exiv2`, `little-cms2`, wxWidgets libraries and
+`build/deps/macos-arm64/lib/libvigraimpex.11.dylib`.
+
+`otool -l` reports development `LC_RPATH` entries under `/opt/homebrew/lib` and
+the local build tree. Those paths must be replaced by bundled-library paths
+before Phase 2 distribution can pass clean-machine validation.
+
+`codesign` currently reports an ad-hoc/linker signature, no Team Identifier, no
+bound `Info.plist` and no sealed resources. That confirms the next Phase 2 slice
+is dylib/rpath normalization before Developer ID signing and notarization.
+
+Added Phase 2 entry points:
+
+- `./scripts/macos/inspect-app-deps.sh`
+- `./scripts/macos/package-unsigned-apps.sh`
+- `./scripts/macos/sign-app.sh`
+
 ## Findings
 
 1. The upstream baseline is build-addressable from the tracked snapshot.
@@ -366,11 +397,13 @@ that:
 14. The CLI panorama fixture exercises project generation, control-point
     detection, cleanup, optimization, validation and rendering.
 15. CI now has a macOS development build job that uploads unsigned app bundles.
+16. Phase 2 now has repeatable inspection, unsigned packaging and signing entry
+    points.
 
 ## Next Actions
 
 1. Start Phase 2 packaging work by normalizing app bundle dylib/rpath handling.
-2. Add signing and verification scripts that can run unsigned locally and switch
-   to Developer ID when credentials are present.
+2. Use `sign-app.sh` for ad-hoc verification locally and Developer ID signing
+   once credentials are present.
 3. Resolve Homebrew deployment-target warnings by moving release dependencies
    from bottles to a controlled dependency build.

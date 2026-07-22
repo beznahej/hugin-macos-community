@@ -19,6 +19,9 @@ jobs:
           bash -n scripts/macos/bootstrap-deps.sh
           bash -n scripts/macos/build-dev.sh
           bash -n scripts/macos/build-vigra.sh
+          bash -n scripts/macos/inspect-app-deps.sh
+          bash -n scripts/macos/package-unsigned-apps.sh
+          bash -n scripts/macos/sign-app.sh
           bash -n scripts/macos/smoke-cli-fixture.sh
       - name: Validate required project files
         run: |
@@ -29,6 +32,7 @@ jobs:
           test -f docs/architecture.md
           test -f docs/product-design.md
           test -f docs/first-deliverables.md
+          test -f docs/packaging/phase-2.md
           test -f docs/upstream-import.md
           test -f deps/macos/homebrew-formulae.txt
           test -f deps/macos/source-deps.txt
@@ -47,15 +51,7 @@ jobs:
       - name: Run CLI panorama smoke fixture
         run: ./scripts/macos/smoke-cli-fixture.sh
       - name: Package unsigned app bundles
-        run: |
-          mkdir -p build/artifacts
-          tar -C build/macos-dev/src/hugin1 \
-            -cf build/artifacts/hugin-macos-unsigned-apps.tar \
-            hugin/Hugin.app \
-            calibrate_lens/calibrate_lens_gui.app \
-            ptbatcher/PTBatcherGUI.app \
-            stitch_project/HuginStitchProject.app \
-            toolbox/hugin_toolbox.app
+        run: ./scripts/macos/package-unsigned-apps.sh
       - name: Upload unsigned app bundles
         uses: actions/upload-artifact@v4
         with:
