@@ -1,0 +1,6 @@
+repo: 1b6fd0419a64e491ee692d3edfca701d39c65a23
+node: 439cf9058f8f761bc0e348ff22c0fa24ab26da54
+branch: default
+latesttag: hugin-0-7-0-rc6
+latesttagdistance: 4554
+changessincelatesttag: 4951
