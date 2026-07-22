@@ -4,9 +4,15 @@ ninja
 mercurial
 pkgconf
 
-# First audited upstream configure dependency
+# Audited upstream configure dependencies
 wxwidgets
+libtiff
+jpeg-turbo
+libpng
+openexr
 exiv2
 libpano
+glew
+little-cms2
 
 # VIGRA is source-built because Homebrew does not currently ship it.

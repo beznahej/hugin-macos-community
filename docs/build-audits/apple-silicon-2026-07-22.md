@@ -345,6 +345,12 @@ that:
 The CI packaging step now calls `./scripts/macos/package-unsigned-apps.sh` so
 local builds and CI produce the same unsigned app archive layout.
 
+The first clean-runner attempt exposed an environment gap in the Homebrew
+manifest: local builds had several required Hugin libraries already installed,
+but the runner did not. The manifest now lists direct configure requirements
+explicitly: `libtiff`, `jpeg-turbo`, `libpng`, `openexr`, `glew` and
+`little-cms2`.
+
 ### Phase 2 packaging inspection
 
 Initial inspection of `Hugin.app` shows the development bundle is not
@@ -423,6 +429,8 @@ Local validation after bundling and ad-hoc signing:
 17. All five built app bundles validate with no external absolute dylib
     dependencies, no external absolute rpaths and no remaining `@rpath`
     dependency references after Phase 2 processing.
+18. The macOS Homebrew manifest now includes the direct image, OpenEXR, GLEW
+    and LCMS dependencies needed on a clean runner.
 
 ## Next Actions
 
