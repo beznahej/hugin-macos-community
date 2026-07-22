@@ -15,6 +15,7 @@ jobs:
       - name: Validate shell syntax
         run: |
           bash -n scripts/fetch-upstream.sh
+          bash -n scripts/import-upstream-snapshot.sh
           bash -n scripts/macos/bootstrap-deps.sh
           bash -n scripts/macos/build-dev.sh
       - name: Validate required project files
@@ -26,3 +27,4 @@ jobs:
           test -f docs/architecture.md
           test -f docs/product-design.md
           test -f docs/first-deliverables.md
+          test -f docs/upstream-import.md

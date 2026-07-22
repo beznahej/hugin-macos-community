@@ -16,6 +16,13 @@ Create a provenance-preserving baseline from SourceForge `default` and record:
 - The upstream revision appears in build metadata.
 - No downstream functional changes are mixed into the import commit.
 
+**Implementation path**
+
+- Use `scripts/import-upstream-snapshot.sh` to export SourceForge `default` into
+  `upstream/hugin/`.
+- Record source metadata in `upstream/hugin/UPSTREAM-SNAPSHOT`.
+- Keep the import commit mechanically separate from all macOS downstream work.
+
 ## Deliverable 2: Apple Silicon build audit
 
 Run a clean `arm64` build and classify every failure into:

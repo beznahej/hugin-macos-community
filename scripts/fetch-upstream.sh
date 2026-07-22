@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DESTINATION="${1:-$ROOT_DIR/vendor/hugin}"
-UPSTREAM_URL="${HUGIN_UPSTREAM_URL:-https://hg.code.sf.net/p/hugin/hugin}"
+UPSTREAM_URL="${HUGIN_UPSTREAM_URL:-http://hg.code.sf.net/p/hugin/hugin}"
 
 if ! command -v hg >/dev/null 2>&1; then
   echo "Mercurial (hg) is required." >&2

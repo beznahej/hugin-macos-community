@@ -43,6 +43,7 @@ This repository is in the **bootstrap phase**. The first deliverables are:
 - project governance and upstream-attribution documents;
 - macOS architecture and product-design proposals;
 - a reproducible upstream-fetch workflow;
+- a reproducible upstream snapshot import workflow;
 - build and packaging scaffolding;
 - an initial backlog for Apple Silicon, wxWidgets, signing and notarization.
 
@@ -53,9 +54,11 @@ See [First Deliverables](docs/first-deliverables.md) and [Roadmap](ROADMAP.md).
 - Project: <https://hugin.sourceforge.io/>
 - Source repository: <https://sourceforge.net/p/hugin/hugin/>
 - SourceForge Mercurial clone:
-  `https://hg.code.sf.net/p/hugin/hugin`
+  `http://hg.code.sf.net/p/hugin/hugin`
 
 See [UPSTREAM.md](UPSTREAM.md) for the synchronization and contribution policy.
+See [Upstream Import Procedure](docs/upstream-import.md) for the reproducible
+snapshot workflow.
 
 ## Licensing
 

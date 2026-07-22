@@ -5,7 +5,7 @@
 The authoritative Hugin source remains the SourceForge Mercurial repository:
 
 ```text
-https://hg.code.sf.net/p/hugin/hugin
+http://hg.code.sf.net/p/hugin/hugin
 ```
 
 This GitHub project is an unofficial downstream focused on modern macOS builds,
@@ -22,6 +22,13 @@ The intended long-term branch model is:
 
 Until the full upstream history is imported, `scripts/fetch-upstream.sh` creates
 a working copy under `vendor/hugin/`, which is intentionally ignored by Git.
+
+The first import path uses periodic vendor snapshots rather than a full
+Mercurial-to-Git history conversion. `scripts/import-upstream-snapshot.sh`
+updates the ignored Mercurial working copy and exports a clean tracked snapshot
+under `upstream/hugin/` with provenance in `UPSTREAM-SNAPSHOT`.
+
+See `docs/upstream-import.md` for the exact procedure.
 
 ## Contribution upstream
 
