@@ -14,7 +14,9 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 # Keep this intentionally small until the upstream dependency audit is complete.
-brew install cmake ninja mercurial pkg-config
+# Avoid upgrading unrelated installed dependents while bootstrapping this repo.
+HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 \
+  brew install cmake ninja mercurial pkg-config
 
 echo "Base development tools installed."
 echo "Hugin runtime dependencies will be pinned after the Apple Silicon audit."

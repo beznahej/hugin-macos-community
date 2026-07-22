@@ -40,6 +40,9 @@ Run a clean `arm64` build and classify every failure into:
 - Each issue includes the command, log excerpt and affected source path.
 - Known third-party macOS patches are reviewed and attributed.
 
+The first audit note lives at
+`docs/build-audits/apple-silicon-2026-07-22.md`.
+
 ## Deliverable 3: Reproducible development build
 
 Provide one command that creates a local development bundle:

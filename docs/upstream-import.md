@@ -39,7 +39,8 @@ The command will:
 1. clone or update `http://hg.code.sf.net/p/hugin/hugin` into `vendor/hugin/`;
 2. update the working copy to the `default` branch;
 3. export a clean archive into `upstream/hugin/`;
-4. write `upstream/hugin/UPSTREAM-SNAPSHOT`.
+4. write `upstream/hugin/rev.txt` for upstream CMake archive builds;
+5. write `upstream/hugin/UPSTREAM-SNAPSHOT`.
 
 ## Commit Discipline
 
@@ -47,6 +48,7 @@ The upstream snapshot commit must contain only:
 
 - files exported from upstream Hugin;
 - the generated `UPSTREAM-SNAPSHOT` provenance file.
+- the generated `rev.txt` file required by upstream CMake archive builds.
 
 Downstream changes should be separate commits after the baseline lands.
 

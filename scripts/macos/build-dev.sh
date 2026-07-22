@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SOURCE_DIR="${HUGIN_SOURCE_DIR:-$ROOT_DIR/vendor/hugin}"
+SOURCE_DIR="${HUGIN_SOURCE_DIR:-$ROOT_DIR/upstream/hugin}"
 BUILD_DIR="${HUGIN_BUILD_DIR:-$ROOT_DIR/build/macos-dev}"
 ARCHITECTURE="${HUGIN_ARCHITECTURE:-$(uname -m)}"
 DEPLOYMENT_TARGET="${HUGIN_MACOS_DEPLOYMENT_TARGET:-13.0}"
@@ -22,7 +22,7 @@ done
 
 if [[ ! -f "$SOURCE_DIR/CMakeLists.txt" ]]; then
   echo "Hugin source not found at $SOURCE_DIR" >&2
-  echo "Run ./scripts/fetch-upstream.sh first." >&2
+  echo "Run ./scripts/import-upstream-snapshot.sh first." >&2
   exit 1
 fi
 
